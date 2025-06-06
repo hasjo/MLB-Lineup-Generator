@@ -1,0 +1,36 @@
+package main
+
+import ()
+
+var AllTeams = []string{
+	"Atlanta Braves",
+	"Chicago White Sox",
+	"Detroit Tigers",
+	"New York Yankees",
+	"Arizona Diamondbacks",
+	"Baltimore Orioles",
+	"Chicago Cubs",
+	"Seattle Mariners",
+	"Houston Astros",
+	"Kansas City Royals",
+	"Milwaukee Brewers",
+	"Pittsburgh Pirates",
+	"Texas Rangers",
+	"Miami Marlins",
+	"Philadelphia Phillies",
+	"St. Louis Cardinals",
+	"Tampa Bay Rays",
+	"Athletics",
+	"Minnesota Twins",
+	"New York Mets",
+	"Boston Red Sox",
+	"San Diego Padres",
+	"San Francisco Giants",
+	"Toronto Blue Jays",
+	"Los Angeles Angels",
+	"Washington Nationals",
+	"Cincinnati Reds",
+	"Cleveland Guardians",
+	"Colorado Rockies",
+	"Los Angeles Dodgers",
+}
