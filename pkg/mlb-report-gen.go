@@ -1,4 +1,4 @@
-package main
+package pkg
 
 import (
 	"encoding/json"
@@ -754,7 +754,7 @@ func RunLookup(debug bool, config ConfigData, watchlist map[string]bool) {
 	}
 }
 
-func main() {
+func RunLocal() {
 	//Setup the config dir
 	debugPtr := flag.Bool("debug", false, "Enable debug output")
 	flag.Parse()

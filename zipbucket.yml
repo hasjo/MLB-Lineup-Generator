@@ -1,0 +1,8 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Cloudformation template for deploying the mlb report generator lambda and s3 bucket
+
+Resources:
+ ZipBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: 'hasjo-lambda-zip-bucket'

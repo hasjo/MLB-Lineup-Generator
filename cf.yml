@@ -1,0 +1,111 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Cloudformation template for deploying the mlb report generator lambda and s3 bucket
+
+Parameters:
+  ReportBucketName:
+    Type: String
+    Default: hasjo-mlb-reports
+    Description: The name of the reports bucket
+  ZipBucketName:
+    Type: String
+    Default: hasjo-lambda-zip-bucket
+    Description: The name of the reports bucket
+  LambdaFunctionName:
+    Type: String
+    Default: hasjo-mlb-report-generator
+    Description: The name of the report generator lambda
+
+Resources:
+  LambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: LambdaS3AccessPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 's3:GetObject'
+                  - 's3:PutObject'
+                  - 's3:ListBucket'
+                Resource:
+                  - !Sub 'arn:aws:s3:::${ReportBucketName}'
+                  - !Sub 'arn:aws:s3:::${ReportBucketName}/*'
+                  - !Sub 'arn:aws:s3:::${ZipBucketName}/*'
+                  - !Sub 'arn:aws:s3:::${ZipBucketName}/*'
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                Resource: '*'
+  LambdaScheduleRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - scheduler.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: LambdaSchedulerInvokePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'lambda:InvokeFunction'
+                Resource:
+                  - !GetAtt GoLambdaFunction.Arn
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                Resource: '*'
+
+  GoLambdaFunction:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      FunctionName: !Ref LambdaFunctionName
+      Handler: bootstrap  # Special handler name for Go Lambda
+      Runtime: provided.al2023  # Runtime for custom Go Lambdas (AL2023 is Amazon Linux 2023)
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref ZipBucketName
+        S3Key: 'go-handler.zip'
+      Timeout: 30
+      MemorySize: 512
+
+  ReportBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref ReportBucketName
+
+  LambdaTriggerMinute:
+    Type: 'AWS::Scheduler::Schedule'
+    Properties:
+      Description: Trigger the MLB Reports Generator Lambda every minute
+      FlexibleTimeWindow:
+        Mode: 'OFF'
+      Name: 'ReportGenSchedule'
+      ScheduleExpression: 'rate(1 Minute)'
+      Target:
+        Arn: !GetAtt GoLambdaFunction.Arn
+        RoleArn: !GetAtt LambdaScheduleRole.Arn
