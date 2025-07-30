@@ -58,7 +58,7 @@ func FindGameLinks(config ConfigData, baseURL string) []GameLink {
 		filename := fmt.Sprintf(
 			"%s-%s-%d.pdf",
 			ScheduleResponse.Dates[0].Date,
-			fmt.Sprintf("%sat%s", awayMatchup, homeMatchup),
+			fmt.Sprintf("%s-at-%s", awayMatchup, homeMatchup),
 			game.GamePk,
 		)
 		filepath := fmt.Sprintf("%s%s", config.ReportPath, filename)

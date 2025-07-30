@@ -4,7 +4,7 @@ Description: Cloudformation template for deploying the mlb report generator lamb
 Parameters:
   ReportBucketName:
     Type: String
-    Default: hasjo-mlb-reports
+    Default: scorecards.jjhsk.com
     Description: The name of the reports bucket
   ZipBucketName:
     Type: String
@@ -12,7 +12,7 @@ Parameters:
     Description: The name of the reports bucket
   LambdaFunctionName:
     Type: String
-    Default: hasjo-mlb-report-generator
+    Default: hasjo-scorecard-report-generator
     Description: The name of the report generator lambda
 
 Resources:
@@ -97,6 +97,31 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Ref ReportBucketName
+      WebsiteConfiguration:
+        ErrorDocument: '404.html'
+        IndexDocument: 'index.html'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: False
+        BlockPublicPolicy: False
+        IgnorePublicAcls: False
+        RestrictPublicBuckets: False
+
+  ReportBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref ReportBucket
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - 's3:GetObject'
+            Effect: Allow
+            Resource: !Join
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref ReportBucket
+                - /*
+            Principal: '*'
 
   LambdaTriggerMinute:
     Type: 'AWS::Scheduler::Schedule'
@@ -104,8 +129,17 @@ Resources:
       Description: Trigger the MLB Reports Generator Lambda every minute
       FlexibleTimeWindow:
         Mode: 'OFF'
-      Name: 'ReportGenSchedule'
+      Name: 'ScorecardSite1Minute'
       ScheduleExpression: 'rate(1 Minute)'
       Target:
         Arn: !GetAtt GoLambdaFunction.Arn
         RoleArn: !GetAtt LambdaScheduleRole.Arn
+  DNSRecord:
+    Type: 'AWS::Route53::RecordSet'
+    Properties:
+      HostedZoneId: 'Z3ITSW4Z2HOQA9'
+      Name: 'scorecards.jjhsk.com'
+      ResourceRecords: 
+        - !Join ['', [!Ref ReportBucket, '.s3-website-us-east-1.amazonaws.com']]
+      Type: 'CNAME'
+      TTL: '300'
