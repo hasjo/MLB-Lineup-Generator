@@ -1,10 +1,10 @@
 package pkg
 
 import (
+	"bytes"
 	"errors"
 	"log"
 	"os"
-	"bytes"
 
 	"codeberg.org/go-pdf/fpdf"
 )
@@ -65,7 +65,6 @@ func GeneratePagePDF(datastring string, config ConfigData) bytes.Buffer {
 }
 
 func GenerateReportPDFReceipt(datastring string, filename string, config ConfigData) {
-
 	pageLength := FindPageLength(datastring)
 	newInit := fpdf.InitType{
 		OrientationStr: "P",

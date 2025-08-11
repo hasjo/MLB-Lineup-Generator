@@ -1,7 +1,7 @@
 build:
 	CGO_ENABLED=0 go build -o bootstrap cmd/gen-reports/main.go
 	cp /usr/share/fonts/liberation/LiberationMono-Regular.ttf LiberationMono-Regular.ttf
-	zip lambda-handler.zip bootstrap LiberationMono-Regular.ttf
+	zip lambda-handler.zip bootstrap LiberationMono-Regular.ttf list.html
 	rm LiberationMono-Regular.ttf
 	rm bootstrap
 

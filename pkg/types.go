@@ -211,12 +211,14 @@ type BenchList struct {
 }
 
 type BenchInfo struct {
-	Name string
+	Name   string
+	Number string
 }
 
 type BatOrderInfo struct {
-	Position string
-	Name     string
+	Position     string
+	Name         string
+	JerseyNumber string
 }
 
 type Standings struct {

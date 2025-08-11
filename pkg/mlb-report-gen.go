@@ -84,8 +84,9 @@ func FindGameLinks(config ConfigData, baseURL string) []GameLink {
 func findMaxBattingOrderLength(bo [9]BatOrderInfo) int {
 	var maxLength int
 	for _, player := range bo {
-		playerString := fmt.Sprintf("%2s - %s",
+		playerString := fmt.Sprintf("%2s - %2s - %s",
 			player.Position,
+			player.JerseyNumber,
 			player.Name)
 		if len(playerString) > maxLength {
 			maxLength = len(playerString)
@@ -124,8 +125,9 @@ func findMaxPitcherLength(bullpen BullpenList) int {
 func PrettyPrintStartingOrderReceipt(team StartingList) string {
 	var returnString string
 	for _, player := range team.BattingOrder {
-		returnString += fmt.Sprintf("%2s - %s\n",
+		returnString += fmt.Sprintf("%2s - %2s - %s\n",
 			player.Position,
+			player.JerseyNumber,
 			player.Name)
 	}
 	returnString += fmt.Sprintf("%2s - %2s - %2s - %s\n",
@@ -141,13 +143,15 @@ func PrettyPrintStartingOrder(awayTeam StartingList, awayMaxName int, homeTeam S
 	var returnString string
 	for ind, player := range awayTeam.BattingOrder {
 		homePlayer := homeTeam.BattingOrder[ind]
-		returnString += fmt.Sprintf("%2s - %-*s|",
+		returnString += fmt.Sprintf("%2s - %2s - %-*s|",
 			player.Position,
-			awayMaxName-4,
+			player.JerseyNumber,
+			awayMaxName-9,
 			player.Name)
-		returnString += fmt.Sprintf(" %2s - %-*s\n",
+		returnString += fmt.Sprintf(" %2s - %2s - %-*s\n",
 			homePlayer.Position,
-			homeMaxName-4,
+			homePlayer.JerseyNumber,
+			homeMaxName-9,
 			homePlayer.Name)
 	}
 	returnString += fmt.Sprintf(
@@ -236,7 +240,7 @@ func PrettyPrintBenchReceipt(team StartingList) string {
 	var returnString string
 	returnString += "---BENCH\n"
 	for _, player := range team.Bench.Bench {
-		returnString += fmt.Sprintf("%s\n", player.Name)
+		returnString += fmt.Sprintf("%s - %s\n", player.Number, player.Name)
 	}
 	return returnString
 }
@@ -258,26 +262,30 @@ func PrettyPrintBench(awayTeam StartingList, awayMaxName int, homeTeam StartingL
 	for ind := range biggerSize {
 		if ind >= awaySize {
 			returnString += fmt.Sprintf(
-				"%-*s | %-*s\n",
-				awayMaxName,
+				"%-*s | %2s - %-*s\n",
+				awayMaxName-5,
 				"",
+				homeTeam.Bench.Bench[ind].Number,
 				homeMaxName,
 				homeTeam.Bench.Bench[ind].Name,
 			)
 
 		} else if ind >= homeSize {
 			returnString += fmt.Sprintf(
-				"%-*s | %-*s\n",
-				awayMaxName,
+				"%2s - %-*s | %-*s\n",
+				awayTeam.Bench.Bench[ind].Number,
+				awayMaxName-5,
 				awayTeam.Bench.Bench[ind].Name,
 				homeMaxName,
 				"",
 			)
 		} else {
 			returnString += fmt.Sprintf(
-				"%-*s | %-*s\n",
-				awayMaxName,
+				"%2s - %-*s | %2s - %-*s\n",
+				awayTeam.Bench.Bench[ind].Number,
+				awayMaxName-5,
 				awayTeam.Bench.Bench[ind].Name,
+				homeTeam.Bench.Bench[ind].Number,
 				homeMaxName,
 				homeTeam.Bench.Bench[ind].Name,
 			)
@@ -428,8 +436,9 @@ func GenerateStartingList(inTeam LiveDataTeam) StartingList {
 		IDString := fmt.Sprintf("ID%d", playerId)
 		PlayerItem := inTeam.Players[IDString]
 		returnList.BattingOrder[ind] = BatOrderInfo{
-			Position: PlayerItem.Position.Abbreviation,
-			Name:     PlayerItem.Person.FullName,
+			Position:     PlayerItem.Position.Abbreviation,
+			Name:         PlayerItem.Person.FullName,
+			JerseyNumber: PlayerItem.JerseyNumber,
 		}
 	}
 	StartingPitcher := inTeam.Pitchers[0]
@@ -468,7 +477,8 @@ func GenerateBench(inTeam LiveDataTeam) BenchList {
 		IDString := fmt.Sprintf("ID%d", playerId)
 		PlayerItem := inTeam.Players[IDString]
 		addItem := BenchInfo{
-			Name: PlayerItem.Person.FullName,
+			Name:   PlayerItem.Person.FullName,
+			Number: PlayerItem.JerseyNumber,
 		}
 		returnList.Bench = append(returnList.Bench, addItem)
 	}
