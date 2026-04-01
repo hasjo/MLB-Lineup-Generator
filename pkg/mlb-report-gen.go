@@ -514,12 +514,14 @@ func PrettyPrintOfficials(officials Officials) string {
 
 func GenerateStandings() StandingsData {
 	var returnData StandingsData
+	currentYear := time.Now().Year()
 	getURL := "https://bdfed.stitch.mlbinfra.com/bdfed/transform-mlb-standings?" +
 		"=&=&splitPcts=false&" +
 		"numberPcts=false" +
 		"&standingsView=division" +
 		"&sortTemplate=3" +
-		"&season=2025" +
+		"&season=" +
+		string(currentYear) +
 		"&leagueIds=103" +
 		"&leagueIds=104" +
 		"&standingsTypes=regularSeason" +
